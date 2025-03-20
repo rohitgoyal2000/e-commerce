@@ -4,6 +4,7 @@ import com.e_commerce.e_commerce.dto.UserDTO;
 import com.e_commerce.e_commerce.models.User;
 import com.e_commerce.e_commerce.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +43,23 @@ public class UserService {
                 savedUser.getZipCode()
         );
 
+    }
+
+
+    public ResponseEntity<?> loginpage(User loginRequest) {
+
+        Optional<User> existingUser = userRepository.findByEmail(loginRequest.getEmail());
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                return ResponseEntity.ok("Login successful!");
+            } else {
+                return ResponseEntity.status(401).body("Invalid credentials");
+            }
+        } else {
+            return ResponseEntity.status(404).body("User not found!");
+        }
     }
 
 }
